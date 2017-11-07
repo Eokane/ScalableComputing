@@ -39,7 +39,7 @@ public class DisconnectRequest {
 
 	@Override
 	public String toString() {
-		return "DisconnectRequest [ipAddress=" + ipAddress + ", port=" + port + ", clientName=" + clientName + "]";
+		return "DisconnectRequest [IP_Address=" + ipAddress + ", Port=" + port + ", Client_Name=" + clientName + "]";
 	}
 
 }
