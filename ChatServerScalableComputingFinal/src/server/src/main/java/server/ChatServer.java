@@ -268,6 +268,33 @@ public class ChatServer implements Runnable {
 					"ID of client:" + disConnReq.getClientName() + ":" + clientReference.get(disConnReq.getClientName()));
 
 			System.out.print("Before tree:" + chatRoomMap.keySet());
+			
+			TreeMap<String, ChatRoom> treemap = new TreeMap<String, ChatRoom>();
+			treemap.putAll(chatRoomMap);
+			System.out.print("After tree:" + treemap.keySet());
+			Iterator<String> charRoomMapItr = treemap.keySet().iterator();
+
+			while (charRoomMapItr.hasNext()) {
+
+				ChatRoom cr = treemap.get(charRoomMapItr.next());
+
+				Map<String, Client> clientItrMap = cr.getClientMap();
+
+				Iterator<String> clientMapItr = cr.getClientMap().keySet().iterator();
+
+				while (clientMapItr.hasNext()) {
+
+					Client clt = clientItrMap.get(clientMapItr.next());
+
+					if (disConnReq.getClientName().equalsIgnoreCase(clt.getName())) {
+
+						sendNotificationToAll(treemap.get(cr.getRoomId()), disConnReq.getClientName(), "left");
+
+					}
+				}
+			}
+
+			remove(Integer.valueOf(clientReference.get(disConnReq.getClientName())));
 
 		} else if (input.matches(Chatroom_Message)) {
 
