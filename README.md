@@ -10,4 +10,9 @@ My final draft of the ServerSocket assignment (i.e. assignment1) is saved in the
 
 ChatServerScalableComputingFinal/src/server/src/main/java/server/
 
+The other folders contain variations of my final code along with tutorials/workings on how I went about learning to implement different features. For example in this directory:ScalableComputing/Assignment 1 Sockets/ChatServer/src/client/ I have learned how to implement hashmaps
+
+In this directory I have learning how to use the mapping function:
+
+
 
