@@ -5,6 +5,7 @@ from tornado import gen
 from tornado.escape import json_encode, json_decode
 from git import Repo
 import os
+import json
 
 
 #List of files to calculate the complexity
@@ -30,6 +31,7 @@ class CCHandler(MainHandler):
 
         if len(master.commits) == 0:
             commit_number = 'Done'
+            print (self.jobComplexity)
         else:
             commit = master.commits.pop(0)
             commit_number = commit.hexsha
@@ -44,16 +46,22 @@ class CCHandler(MainHandler):
 
 
     def post(self):
+        #msg = json.loads(self.request.body.decode('utf-8'))
         msg = self.request.body
-        print (msg)
+        msg = json_decode(msg)
+        print ('Debug - post method: {}'.format(msg))
 
-        complexity_number = msg['complexity_number']
-        commit_number = msg['commit_number']
-        print (complexity_number)
+        print(type(msg))
 
-        master.complexity_map[commit_number] = complexity_number
 
-        self.finish("Result Received")
+        # commit = str(msg['commit'])
+        # complexity = msg['complexity']
+        #
+        # print(commit)
+        # print (type(commit ))
+        #
+        # self.jobComplexity[commit] = complexity
+        # self.finish("Result Received")
 
 
 make_app = tornado.web.Application([
@@ -78,7 +86,7 @@ class Master:
         #for i in foo:
          #   print (i)
         print (self.commits)
-        self.complexity_map = {}
+        self.jobComplexity = {}
 
     def clone_repo(self, repo_dir):
         # if repo root doesnt exists create it

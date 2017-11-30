@@ -7,6 +7,8 @@ import requests
 from random import *
 import os
 from git import Repo
+import radon
+from radon.complexity import cc_rank, cc_visit
 CCAddress = "http://localhost:4444"
 
 
@@ -35,6 +37,28 @@ CCAddress = "http://localhost:4444"
 #    (r"/Start", CCHandler),
 #])
 #
+
+def calculate_cc_complexity(files):
+    """ calculate cc for all files in current commit """
+    for file in files:
+        with open(file) as f:
+            data = f.read()
+            try:
+                cc = radon.complexity.cc_visit(data)
+                cc_tot = 0
+                for cc_item in cc:
+                    cc_tot += cc_item.complexity
+                    # print("complexity = ", cc_item.complexity)
+            except Exception as err:
+                #print("ERROR: could not calculate cc for file {0} in commit {1}".format(file, commit_number))
+                print(err)
+                cc_tot = 0
+    # return total complexity of all files
+    return cc_tot
+
+
+
+
 
 def calculateComplexity(f):
     length_of_time = randint(1, 10)
@@ -87,8 +111,8 @@ if __name__ == "__main__":
         response = requests.get(CCAddress)
         job = response.json()
         
-        if job == '"Done"':  # deal with the double quotes
-            break
+        #if job == '"Done"':  # deal with the double quotes
+        #    break
 
         # CALCULATE THE COMPLEXITY
         print('Client {} is calculating {}'.format(ClientName, job))
@@ -97,16 +121,17 @@ if __name__ == "__main__":
         
         #get a lit of py files to calculate complexity
         files = update_files(repo_dir)
-        
-        totalComplexity = 0
-        for f in files:
-            totalComplexity += calculateComplexity(f)
-            
-        
-        msg = 'The complexity in {} was completed by {}. Complexity value is: {}'.format(response.text, ClientName, totalComplexity)
+        c = calculate_cc_complexity(files)
+        print ('The complexity on commit {} was calculated by {}. Complexity value is: {}'.format(job, ClientName, c))
 
+        result = { 
+        'commit': job,
+        'complexity': str(c)
+        }
+  
+          
         # post result to the server
-        response = requests.post('http://localhost:4444', data='{}'.format(msg))
+        response = requests.post('http://localhost:4444', json='{}'.format(result))
 
 
 
