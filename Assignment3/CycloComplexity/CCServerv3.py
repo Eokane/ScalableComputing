@@ -31,7 +31,8 @@ class CCHandler(MainHandler):
 
         if len(master.commits) == 0:
             commit_number = 'Done'
-            print (self.jobComplexity)
+            # print (master.jobComplexity)
+            print("Total Complexity = ", master.cc_total)
         else:
             commit = master.commits.pop(0)
             commit_number = commit.hexsha
@@ -51,6 +52,8 @@ class CCHandler(MainHandler):
         print (msg['commit'])
         print (msg['complexity'])
         print ('Debug - post method: {}'.format(msg))
+
+        master.cc_total += int(msg['complexity'])
 
         #print(type(msg))
 
@@ -77,6 +80,7 @@ class Master:
         self.gitrepo = "https://github.com/DLTK/DLTK"
         self.repo_dir = 'c:\\CycloComplx\\Server'
         self.repo = None
+        self.cc_total = 0
 
         self.clone_repo(self.repo_dir)
         assert not self.repo.bare

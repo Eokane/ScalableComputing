@@ -40,6 +40,7 @@ class MainHandler(tornado.web.RequestHandler):
 
 def calculate_cc_complexity(files):
     """ calculate cc for all files in current commit """
+    cc_tot = 0
     for file in files:
         with open(file) as f:
             data = f.read()
