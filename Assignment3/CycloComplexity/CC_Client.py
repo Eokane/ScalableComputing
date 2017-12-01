@@ -12,10 +12,10 @@ from radon.complexity import cc_rank, cc_visit
 CCAddress = "http://localhost:4444"
 
 
-#class MainHandler(tornado.web.RequestHandler):
+class MainHandler(tornado.web.RequestHandler):
 #
-#    def json_headers(self):
-#        self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS, PUT')
+    def json_headers(self):
+       self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS, PUT')
 #
 #
 #
@@ -131,7 +131,7 @@ if __name__ == "__main__":
   
           
         # post result to the server
-        response = requests.post('http://localhost:4444', json='{}'.format(result))
-
+        #response = requests.post('http://localhost:4444', json='{}'.format(result))
+        response = requests.post('http://localhost:4444', json=result)
 
 

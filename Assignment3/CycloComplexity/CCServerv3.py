@@ -47,11 +47,12 @@ class CCHandler(MainHandler):
 
     def post(self):
         #msg = json.loads(self.request.body.decode('utf-8'))
-        msg = self.request.body
-        msg = json_decode(msg)
+        msg = json_decode(self.request.body)
+        print (msg['commit'])
+        print (msg['complexity'])
         print ('Debug - post method: {}'.format(msg))
 
-        print(type(msg))
+        #print(type(msg))
 
 
         # commit = str(msg['commit'])
