@@ -7,6 +7,12 @@ from git import Repo
 import os
 import json
 
+import pandas as pd
+import datetime
+import configparser
+
+
+
 
 #List of files to calculate the complexity
 Files = ['file1', 'file2', 'file3', 'file4', 'file5','file6','file7','file8','file9','file10']
@@ -21,22 +27,26 @@ class MainHandler(tornado.web.RequestHandler):
         self.write(json_encode(data))
         self.finish()
 
-
 class CCHandler(MainHandler):
     @tornado.web.asynchronous
     @gen.engine
     #Retreive the information (itertion); File1 to file5 are found on localhost:4444 then spits out done
     def get(self):
-        print ('Debug - get method')
+          print ('Debug - get method')
 
-        if len(master.commits) == 0:
-            commit_number = 'Done'
-            # print (master.jobComplexity)
-            print("Total Complexity = ", master.cc_total)
-        else:
-            commit = master.commits.pop(0)
-            commit_number = commit.hexsha
-            self.returnData(commit_number)
+          if master.serverReady == False:
+              commit_number = 'Server is not Ready'
+          elif len(master.commits) == 0:
+              commit_number = 'Done'
+              # print (master.jobComplexity)
+              #print("Total Complexity = ", master.cc_total)
+              if not master.finish:
+                  master.finish=True
+                  master.finishedUP()
+          else:
+              commit = master.commits.pop(0)
+              commit_number = commit.hexsha
+          self.returnData(commit_number)
 
             # commits_tbd = master.commits
         # if len(commits_tbd) == 0:
@@ -44,16 +54,42 @@ class CCHandler(MainHandler):
         # else:
         #     recent_commit = commits_tbd.pop(0)
         #     self.returnData(recent_commit.hexhsa)
+class Initiate_Handler(MainHandler):
 
+        @tornado.web.asynchronous
+        @gen.engine
+        def get(self):
+            print('ReadyHandler - ready')
+            cc.serverReady = True
+            cc.StartWorkTime = datetime.datetime.now()
+            self.returnData('Ready to start!')
 
-    def post(self):
+class Results_Handler(MainHandler):
+        @tornado.web.asynchronous
+        @gen.engine
+        def get(self):
+            print('ResultsHandler - get ')
+            self.returnData(cc.resultsDb)
+
+def post(self):
         #msg = json.loads(self.request.body.decode('utf-8'))
         msg = json_decode(self.request.body)
-        print (msg['commit'])
-        print (msg['complexity'])
-        print ('Debug - post method: {}'.format(msg))
+        commit = msg['commit']
+        complexity = msg['complexity']
+        duration = msg['duration']
+        clientName = msg['clientName']
 
-        master.cc_total += int(msg['complexity'])
+
+
+        cc.resultsDb.append((commit, complexity, duration, clientName))
+
+        self.finish("Result received")
+        #print (msg['commit'])
+        #print (msg['complexity'])
+
+       # print ('Debug - post method: {}'.format(msg))
+
+        #master.cc_total += int(msg['complexity'])
 
         #print(type(msg))
 
@@ -70,6 +106,8 @@ class CCHandler(MainHandler):
 
 make_app = tornado.web.Application([
     (r"/", CCHandler),
+    (r"/results", Results_Handler),
+    (r"/ready", Initiate_Handler)
     ])
 
 
@@ -108,6 +146,8 @@ class Master:
 
 
 if __name__ == "__main__":
+
+
 
     master = Master()
 
