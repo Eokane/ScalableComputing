@@ -90,14 +90,14 @@ if __name__ == "__main__":
            break
 
        # CALCULATE THE COMPLEXITY
-       print('Client {} is calculating {}'.format(ClientName, job))
+       print('Job {} is being calculated by {}'.format(job,ClientName ))
        git = repo.git
        git.checkout(job)
 
        # get a lit of py files to calculate complexity
        files = update_files(repo_dir)
        c = calculate_cc_complexity(files)
-       print('The complexity on commit {} was calculated by {}. Complexity value is: {}'.format(job, ClientName, c))
+       print('Commit {} has complexity {}. It was calculated by: {}'.format(job,c,  ClientName))
 
        #client stores the complexity
        results[job] = c
