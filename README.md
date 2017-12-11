@@ -15,5 +15,6 @@ The other folders contain variations of my final code along with tutorials/worki
 In this directory I have learning how to use the mapping function:
 ScalableComputing/Tutorial/src/
 
+In the folder Assignment 3 you will find the Cyclomatic Complexity assignment and the Distributed file server
 
 
