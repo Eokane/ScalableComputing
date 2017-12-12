@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Dec  7 21:16:46 2017
+Created on Tue Dec 12 20:01:47 2017
 
 @author: Eibhlín
 """
+import os
+import tornado.gen
 import os
 import logging
 import random
@@ -24,10 +26,7 @@ import hashlib
 import argparse
 import requests
 
-'''
-BaseHandler Class; Inherits from tornado.web.RequestHandler
-Used for common methods across all other Handlers
-'''
+
 class MainHandler(tornado.web.RequestHandler):
 
     def send_json_cors_headers(self):
@@ -39,31 +38,7 @@ class MainHandler(tornado.web.RequestHandler):
         self.write(json_encode(data))
         self.finish()
 
-class ShowFiles(MainHandler):
-
-    def get(self,  file=None):
-        self.returnData(os.listdir(File_server_path))
-
-        class showFiles(MainHandler):
-            def get(self, file=None):
-                self.returnData(os.listdir(File_server_path))
-
-class CreateFile(MainHandler):
-
-    def post(self, filename):
-        #create the file
-        fileinformation = str(self.request.body.decode('utf8'))
-        FilePath = File_server_path + '\\' + filename
-        output_file = open(FilePath, 'w')
-        output_file.write(str(fileinformation))
-
-        #create the file on the replication server:
-        response = requests.post('{}/CreateRepFile/{}/'.format(replicationServer, filename), data=fileinformation)
-        print(response.text)
-
-        self.finish('File ' + filename + ' created')
-
-class OpenFile(MainHandler):
+class OpenRepFile(MainHandler):
 
     def get(self, filename):
         FilePath = File_server_path + '\\' + filename
@@ -72,19 +47,29 @@ class OpenFile(MainHandler):
         text = output_file.read()
         self.finish(text)
 
-    
+
+
+class CreateRepFile(MainHandler):
+
+    def post(self, filename):
+        fileinformation = str(self.request.body.decode('utf8'))
+        FilePath = File_server_path + '\\' + filename
+        output_file = open(FilePath, 'w')
+        output_file.write(str(fileinformation))
+        self.finish('File ' + filename + ' created on replication Server')
+
+
 if __name__ == "__main__":
-    File_server_path  = 'c:\\DistFileSystem\\Files'
-    port = 5555
-    replicationServer = 'http://localhost:5556'
+    File_server_path  = 'c:\\DistFileSystem\\RepFiles'
+    port = 5556
 
     if not os.path.exists(File_server_path):
         os.makedirs(File_server_path)
 
     app = tornado.web.Application([
-        (r"/ShowFiles", ShowFiles)
-        , (r"/CreateFile/(.*)/", CreateFile)
-        , (r"/OpenFile/(.*)/", OpenFile)
+        #(r"/ShowFiles", ShowFiles)
+         (r"/CreateRepFile/(.*)/", CreateRepFile)
+       , (r"/OpenRepFile/(.*)/", OpenRepFile)
 
     ])
 

@@ -9,8 +9,10 @@ import requests
 import ClientCache as cache
 from datetime import datetime 
 import os 
+import random
 
 FileServer = 'http://localhost:5555' 
+ReplicationServer = 'http://localhost:5556'
 localCache = cache.ClientCache()
 
 def createFile(fileName):
@@ -31,7 +33,15 @@ def openFile(openFileName):
             os.remove(openFileName)
             del localCache.cache[openFileName]
 
-    file = requests.get('{}/OpenFile/{}/'.format(FileServer, openFileName)).text     
+    #simulate here if file server is free, get the file from the replication server
+    FileServerIsFree = random.uniform(0, 1) > 0.2
+    if FileServerIsFree:
+        print ('Getting File from the File Server')
+        file = requests.get('{}/OpenFile/{}/'.format(FileServer, openFileName)).text
+    else:
+        print ('File Server Busy - Getting File from the Replication Server')
+        file = requests.get('{}/OpenRepFile/{}/'.format(ReplicationServer, openFileName)).text
+    
     local_copy = open(openFileName , "w") 
     local_copy.write(file)
     local_copy.close()
@@ -51,11 +61,10 @@ def saveFile(openFileName):
     localCache.cache[openFileName] = datetime.now()
 
 
-name = 'file2'
+name = 'file4'
 
 createFile(name)
 listFiles()
 openFile(name)
-changeFile(name, 'new line2')
+changeFile(name, 'new line3')
 saveFile(name)
-
