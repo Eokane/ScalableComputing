@@ -25,7 +25,7 @@ import argparse
 import requests
 
 '''
-MainHandler Class; Inherits from tornado.web.RequestHandler
+BaseHandler Class; Inherits from tornado.web.RequestHandler
 Used for common methods across all other Handlers
 '''
 class MainHandler(tornado.web.RequestHandler):
