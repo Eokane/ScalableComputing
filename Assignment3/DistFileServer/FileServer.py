@@ -61,7 +61,7 @@ class CreateFile(MainHandler):
         response = requests.post('{}/CreateRepFile/{}/'.format(replicationServer, filename), data=fileinformation)
         print(response.text)
 
-        self.finish('File ' + filename + ' created')
+        self.finish('File ' + filename + ' created or updated')
 
 class OpenFile(MainHandler):
 

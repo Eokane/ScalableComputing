@@ -13,7 +13,20 @@ import random
 
 FileServer = 'http://localhost:5555' 
 ReplicationServer = 'http://localhost:5556'
+LockingServer = 'http://localhost:5557'
 localCache = cache.ClientCache()
+
+def checkIfLocked(fileName):
+    response = requests.get('{}/Locked/{}/'.format(LockingServer, fileName))
+    return response.text
+
+def addLock(fileName):
+    response = requests.post('{}/AddLock/{}/'.format(LockingServer, fileName))
+    print (response.text)
+
+def removeLock(fileName):
+    response = requests.post('{}/RemoveLock/{}/'.format(LockingServer, fileName))
+    print (response.text)
 
 def createFile(fileName):
     response = requests.post('{}/CreateFile/{}/'.format(FileServer, fileName), data="Line 1")
@@ -33,6 +46,11 @@ def openFile(openFileName):
             os.remove(openFileName)
             del localCache.cache[openFileName]
 
+    if checkIfLocked(openFileName) == 'Yes':
+        return 'File is locked - cant open'
+    else:
+        addLock(openFileName)
+    
     #simulate here if file server is free, get the file from the replication server
     FileServerIsFree = random.uniform(0, 1) > 0.2
     if FileServerIsFree:
@@ -45,6 +63,8 @@ def openFile(openFileName):
     local_copy = open(openFileName , "w") 
     local_copy.write(file)
     local_copy.close()
+    
+    return 'OK'
     
 def changeFile(openFileName, line):
     local_copy = open(openFileName , "a") 
@@ -59,12 +79,17 @@ def saveFile(openFileName):
     response = requests.post('{}/CreateFile/{}/'.format(FileServer, openFileName), data=fileText)
     print(response.text)
     localCache.cache[openFileName] = datetime.now()
+    removeLock(openFileName)
 
-
-name = 'file4'
+name = 'myFile'
 
 createFile(name)
 listFiles()
-openFile(name)
-changeFile(name, 'new line3')
-saveFile(name)
+result = openFile(name)
+if result != 'OK':
+    print (result)
+else:
+    changeFile(name, 'new line')
+    saveFile(name)
+    
+#checkIfLocked(name)
